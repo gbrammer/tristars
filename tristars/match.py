@@ -1,3 +1,9 @@
+"""
+Matching functions.  
+
+Only triangles are reasonably robust for now!
+"""
+
 import numpy as np
 import os
 
