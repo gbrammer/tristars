@@ -7,7 +7,10 @@ Only triangles are reasonably robust for now!
 import numpy as np
 import os
 
-def match_catalog_tri(V1, V2, maxKeep=10, auto_keep=False, auto_transform=None, auto_limit=3, size_limit=[5,800], ignore_rot=True, ignore_scale=True, ba_max=0.9):
+def match_catalog_tri(V1, V2, maxKeep=10, auto_keep=False,
+                      auto_transform=None, auto_limit=3, 
+                      size_limit=[5,800], ignore_rot=True, ignore_scale=True, 
+                      ba_max=0.9):
     """
     Match to position lists together using quads similar to Heyl (2013).
     
@@ -46,16 +49,17 @@ def match_catalog_tri(V1, V2, maxKeep=10, auto_keep=False, auto_transform=None, 
     if auto_transform is None:
         auto_transform = skimage.transform.SimilarityTransform
     
-    tri_1, ix_1 = cat_tri_hash(V1, size_limit=size_limit, ignore_scale=ignore_scale, ignore_rot=ignore_rot, ba_max=ba_max)
+    tri_1, ix_1 = cat_tri_hash(V1, size_limit=size_limit,
+                               ignore_scale=ignore_scale, 
+                               ignore_rot=ignore_rot, ba_max=ba_max)
 
-    tri_2, ix_2 = cat_tri_hash(V2, size_limit=size_limit, ignore_scale=ignore_scale, ignore_rot=ignore_rot, ba_max=ba_max)
+    tri_2, ix_2 = cat_tri_hash(V2, size_limit=size_limit, 
+                               ignore_scale=ignore_scale, 
+                               ignore_rot=ignore_rot, ba_max=ba_max)
                 
     # Use scipy.spatial.cKDTree
     tree = spatial.cKDTree(tri_1)
     dist, ix = tree.query(tri_2)
-
-    # Use Nkeep best matches
-    Nkeep = np.array([(dist/dist.min() < 10).sum(), V2.shape[0], maxKeep]).min()
     
     if auto_keep:
         # Fit a tranform from the best triangle        
@@ -65,7 +69,9 @@ def match_catalog_tri(V1, V2, maxKeep=10, auto_keep=False, auto_transform=None, 
         # Matched point pairs
         pair_ix = _get_tri_pairs(V1, ix_1, V2, ix_2, tri_ix)
         
-        tfo, dx, rms = get_transform(V1, V2, pair_ix, transform=auto_transform, use_ransac=True)
+        tfo, dx, rms = get_transform(V1, V2, pair_ix,
+                                     transform=auto_transform,
+                                     use_ransac=True)
         
         # Full list of pairs
         transV1 = tfo(V1)
@@ -78,6 +84,10 @@ def match_catalog_tri(V1, V2, maxKeep=10, auto_keep=False, auto_transform=None, 
         pair_ix = pair_ix[np.sqrt((resid**2).sum(axis=1)) < 3,:]
     
     else:  
+        # Use Nkeep best matches
+        Nkeep = np.array([(dist/dist.min() < 10).sum(), V2.shape[0],
+                          maxKeep]).min()
+
         clip = np.argsort(dist)[:Nkeep]        
         tri_ix = np.vstack([ix, np.arange(tri_2.shape[0])]).T[clip,:]
         # Matched point pairs
@@ -85,7 +95,8 @@ def match_catalog_tri(V1, V2, maxKeep=10, auto_keep=False, auto_transform=None, 
     
     return pair_ix
     
-def cat_tri_hash(V, ba_max=0.8, size_limit=[5,800], ignore_scale=True, ignore_rot=True):
+def cat_tri_hash(V, ba_max=0.8, size_limit=[5,800], ignore_scale=True,
+                 ignore_rot=True):
     """
     Compute triangle hash values
     
@@ -135,7 +146,8 @@ def cat_tri_hash(V, ba_max=0.8, size_limit=[5,800], ignore_scale=True, ignore_ro
         
     """
     tri = parse_triangles(V)
-    clip = (tri['b']/tri['a'] < ba_max) & (tri['a'] > size_limit[0]) & (tri['a'] < size_limit[1])
+    clip = (tri['b']/tri['a'] < ba_max) & (tri['a'] > size_limit[0])
+    clip &= (tri['a'] < size_limit[1])
     
     if ignore_scale:
         pars = [tri['a'], tri['b'], tri['c']]
@@ -235,8 +247,10 @@ def parse_triangles(V):
         ii = 100
         # show a triangle
         pl = plt.plot(triV[ii,:,0], triV[ii,:,1], alpha=0.5)
-        plt.scatter(triV[ii,0,0], triV[ii,0,1], marker='o', color=pl[0].get_color())
-        pl = plt.plot(long_edge[ii,:,0], long_edge[ii,:,1], alpha=0.5, linestyle='--', color=pl[0].get_color())
+        plt.scatter(triV[ii,0,0], triV[ii,0,1], marker='o',
+                    color=pl[0].get_color())
+        pl = plt.plot(long_edge[ii,:,0], long_edge[ii,:,1], alpha=0.5,
+                      linestyle='--', color=pl[0].get_color())
     
     return params
     
@@ -268,11 +282,13 @@ def _get_tri_pairs(V1, ix_1, V2, ix_2, ix):
         
     """
     # Triangles already sorted by side length in both lists
-    all_pairs = np.vstack([ix_1[ix[:,0],:].flatten(), ix_2[ix[:,1],:].flatten()])
+    all_pairs = np.vstack([ix_1[ix[:,0],:].flatten(),
+                           ix_2[ix[:,1],:].flatten()])
     pair_ix = np.unique(all_pairs, axis=1).T
     return pair_ix
 
-def match_catalog_quads(V1, V2, normed_triangles=False, maxKeep=8, size_limit=[5,800]):
+def match_catalog_quads(V1, V2, normed_triangles=False, maxKeep=8,
+                        size_limit=[5,800]):
     """
     Match to position lists together using quads similar to Heyl (2013).
     
@@ -312,10 +328,12 @@ def match_catalog_quads(V1, V2, normed_triangles=False, maxKeep=8, size_limit=[5
     from scipy import spatial
     
     a_1, ba_1, ca_1, quads_1 = cat_quad_hash(V1)
-    ok_1 = np.isfinite(a_1+ba_1+ca_1) & (a_1 > size_limit[0]**2/2) & (a_1 < size_limit[1]**2/2.)
+    ok_1 = np.isfinite(a_1+ba_1+ca_1) & (a_1 > size_limit[0]**2/2) 
+    ok_1 &= (a_1 < size_limit[1]**2/2.)
     
     a_2, ba_2, ca_2, quads_2 = cat_quad_hash(V2)
-    ok_2 = np.isfinite(a_2+ba_2+ca_2) & (a_2 > size_limit[0]**2/2) & (a_2 < size_limit[1]**2/2.)
+    ok_2 = np.isfinite(a_2+ba_2+ca_2) & (a_2 > size_limit[0]**2/2)
+    ok_2 &= (a_2 < size_limit[1]**2/2.)
         
     if normed_triangles:
         # More flexibility to account for scale differences
@@ -505,33 +523,42 @@ def match_diagnostic_plot(V1, V2, pair_ix, tf=None, new_figure=False):
     import matplotlib.pyplot as plt
     
     if new_figure:
-        fig = plt.figure()
+        fig = plt.figure(figsize=[4,4])
         ax = fig.add_subplot(111)
     else:
         ax = plt.gca()
         
     # Original catalog points
-    ax.scatter(V1[:,0], V1[:,1], marker='o', alpha=0.1, color='k', label='V1, N={0}'.format(V1.shape[0]))
-    ax.scatter(V2[:,0], V2[:,1], marker='o', alpha=0.1, color='r', label='V2, N={0}'.format(V2.shape[0]))
+    ax.scatter(V1[:,0], V1[:,1], marker='o', alpha=0.1, color='k', 
+               label='V1, N={0}'.format(V1.shape[0]))
+               
+    ax.scatter(V2[:,0], V2[:,1], marker='o', alpha=0.1, color='r', 
+               label='V2, N={0}'.format(V2.shape[0]))
     
     if tf is not None:
         # First catalog matches
         tf_mat = V1[pair_ix[:,0],:]    
-        ax.plot(tf_mat[:,0], tf_mat[:,1], marker='o', alpha=0.1, color='k', linewidth=2)
+        ax.plot(tf_mat[:,0], tf_mat[:,1], marker='o', alpha=0.1, 
+                color='k', linewidth=2)
         
         # Transformed first catalog
         tf_mat = tf(V1[pair_ix[:,0],:])
-        ax.plot(tf_mat[:,0], tf_mat[:,1], marker='o', alpha=0.8, color='k', linewidth=2, label='Transform:\n'+'  shift=[{0:.2f}, {1:.2f}]\n  rotation={2:.4f}'.format(tf.translation[0], tf.translation[1], tf.rotation))
+        ax.plot(tf_mat[:,0], tf_mat[:,1], marker='o', alpha=0.8, color='k', 
+                linewidth=2, label='Transform:\n'+'  shift=[{0:.2f}, {1:.2f}]\n  rotation={2:.4f}'.format(tf.translation[0], 
+                tf.translation[1], tf.rotation))
         
     else:
         # First catalog matches
         tf_mat = V1[pair_ix[:,0],:]    
-        ax.plot(tf_mat[:,0], tf_mat[:,1], marker='o', alpha=0.8, color='k', linewidth=2)
+        ax.plot(tf_mat[:,0], tf_mat[:,1], marker='o', alpha=0.8, color='k',
+                linewidth=2)
         
     # Second catalog matches
-    ax.plot(V2[pair_ix[:,1],0], V2[pair_ix[:,1],1], marker='.', alpha=0.8, color='r', linewidth=0.8, label='{0} pairs'.format(pair_ix.shape[0]))
+    ax.plot(V2[pair_ix[:,1],0], V2[pair_ix[:,1],1], marker='.', alpha=0.8, 
+            color='r', linewidth=0.8, 
+            label='{0} pairs'.format(pair_ix.shape[0]))
     
-    ax.legend()
+    ax.legend(fontsize=8)
     
     if new_figure:
         fig.tight_layout(pad=0.2)
