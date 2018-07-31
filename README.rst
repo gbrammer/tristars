@@ -1,8 +1,7 @@
-# tristars
+*tristars*: Match coordinate lists using similar triangles.
 
-Match coordinate lists using similar triangles.
-
-### Demo
+Demo
+~~~~
 
 Generate a mock catalog with 50 sources in a parent catalog and 10 sources in a transformed subset of this catalog.
 
