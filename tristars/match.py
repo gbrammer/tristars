@@ -81,7 +81,7 @@ def match_catalog_tri(V1, V2, maxKeep=10, auto_keep=False,
         
         # Small residuals
         clip = resid < 1
-        pair_ix = pair_ix[np.sqrt((resid**2).sum(axis=1)) < 3,:]
+        pair_ix = pair_ix[np.sqrt((resid**2).sum(axis=1)) < auto_limit,:]
     
     else:  
         # Use Nkeep best matches
