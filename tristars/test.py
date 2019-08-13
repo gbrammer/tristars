@@ -21,7 +21,7 @@ def generate_catalogs(seed=1, N1=50, N2=10, tr=[40,50], rot=0.1, err=0.1):
     
     return V1, V2, tf
     
-def test(seed=1, N1=50, N2=10, tr=[40,50], rot=0.1, err=0.1):
+def test(seed=1, N1=50, N2=10, tr=[40,50], rot=0.1, err=0.1, make_figure=True, Nextra2=10, size_limit=[5,800], ba_max=0.9):
     """
     Demo of the matching script
     """
@@ -29,13 +29,12 @@ def test(seed=1, N1=50, N2=10, tr=[40,50], rot=0.1, err=0.1):
     
     from skimage.transform import SimilarityTransform
 
-    
     try:
-        from tristars import match 
-        from tristars import test 
-    except:
         from . import match
         from . import test
+    except:
+        from tristars import match 
+        from tristars import test 
         
     # Length of parent catalog
     #N = 50
@@ -50,6 +49,10 @@ def test(seed=1, N1=50, N2=10, tr=[40,50], rot=0.1, err=0.1):
     
     V1, V2, tf = test.generate_catalogs(seed=seed, N1=N1, N2=N2, tr=tr, rot=rot, err=err)
     
+    if Nextra2 > 0:
+        xV1, xV2, tf = test.generate_catalogs(seed=seed*2, N1=N1, N2=Nextra2, tr=tr, rot=rot, err=err)
+        V2 = np.vstack([V2, xV2])
+        
     # Test2 j230822-021134
     if False:
         import astropy.io.fits as pyfits
@@ -84,15 +87,19 @@ def test(seed=1, N1=50, N2=10, tr=[40,50], rot=0.1, err=0.1):
     # V1 = V1[pair_ix[:,0],:]
     # V2 = V2[pair_ix[:,1],:]
     
-    pair_ix = match.match_catalog_tri(V1, V2, maxKeep=4, auto_keep=3, ignore_rot=False)#, ignore_rot=True, ignore_scale=True, ba_max=0.98, size_limit=[1,1000])
+    pair_ix = match.match_catalog_tri(V1, V2, maxKeep=4, auto_keep=3, ignore_rot=False, ba_max=ba_max, size_limit=size_limit)#, ignore_rot=True, ignore_scale=True, ba_max=0.98, size_limit=[1,1000])
     
     ## Check output transform
     tfo, dx, rms = match.get_transform(V1, V2, pair_ix, transform=SimilarityTransform, use_ransac=True)
     #tfo = SimilarityTransform() #
     
     ## Make diagnostic plot
-    fig = match.match_diagnostic_plot(V1, V2, pair_ix, tf=tfo, new_figure=True)
-    
+    if make_figure:
+        fig = match.match_diagnostic_plot(V1, V2, pair_ix, tf=tfo,
+                                          new_figure=True)
+    else:
+        fig = None
+        
     print(' Input transform: translation=[{0:.2f}, {1:.2f}] rotation={2:.4f}'.format(tf.translation[0], tf.translation[1], tf.rotation))
 
     print('Output transform: translation=[{0:.2f}, {1:.2f}] rotation={2:.4f}'.format(tfo.translation[0], tfo.translation[1], tfo.rotation))
