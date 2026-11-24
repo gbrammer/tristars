@@ -218,6 +218,12 @@ def parse_triangles(V):
     # Area
     v1 = triV[:,1,:] - triV[:,0,:]
     v2 = triV[:,2,:] - triV[:,0,:]
+
+    sh = v1.shape
+    z3 = np.zeros((sh[0], 1), dtype=v1.dtype)
+    v1 = np.hstack([v1, z3])
+    v2 = np.hstack([v2, z3])
+
     area = np.abs(0.5*np.cross(v1, v2))
     params['area'] = area
     
@@ -244,6 +250,7 @@ def parse_triangles(V):
     triV = V[indices,:]
     
     if False:
+        import matplotlib.pyplot as plt
         ii = 100
         # show a triangle
         pl = plt.plot(triV[ii,:,0], triV[ii,:,1], alpha=0.5)
