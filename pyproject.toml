@@ -21,7 +21,8 @@ requires-python = ">=3.10"
 dependencies = [
     "numpy",
     "scipy",
-    "scikit-image"
+    "scikit-image",
+    "matplotlib"
 ]
 dynamic = ["version"]
 
@@ -42,5 +43,8 @@ test = [
 ]
 
 [tool.setuptools]
-packages = ["tristars"]
+packages = [
+    "tristars",
+    "tristars.tests",
+]
 
