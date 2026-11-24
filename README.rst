@@ -5,8 +5,8 @@ Demo
 
 Generate a mock catalog with 50 sources in a parent catalog and 10 sources in a transformed subset of this catalog.
 
-   >>> from tristars import test
-   >>> test.test(N1=50, N2=10, err=1, tr=[40,50], rot=0.1)
+   >>> from tristars.tests import test_match
+   >>> test_match.test_match(N1=50, N2=10, err=1, tr=[40,50], rot=0.1)
    
    .. image:: docs/_static/tristars_test.png
-       :width: 100
+       :width: 200

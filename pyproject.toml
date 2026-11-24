@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools_scm[toml]>=6.2", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tristars"
+description = "Match coordinate lists with similar triangles"
+readme = "README.rst"
+authors = [
+    {name = "Gabriel Brammer", email = "gbrammer@gmail.com"}
+]
+license = "MIT"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "scipy",
+    "scikit-image",
+    "matplotlib"
+]
+dynamic = ["version"]
+
+[tool.setuptools_scm]
+write_to = "tristars/version.py"
+
+[project.urls]
+Homepage = "https://github.com/gbrammer/tristars"
+Repository = "https://github.com/gbrammer/tristars"
+Issues = "https://github.com/gbrammer/tristars/issues"
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    "build>=0.10.0",
+    "twine>=4.0.0",
+    "flake8"
+]
+
+[tool.setuptools]
+packages = [
+    "tristars",
+    "tristars.tests",
+]
+
