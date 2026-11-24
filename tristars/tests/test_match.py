@@ -106,4 +106,4 @@ def test_match(
         )
     )
 
-    return fig
+    # return fig
