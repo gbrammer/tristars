@@ -9,7 +9,7 @@ readme = "README.rst"
 authors = [
     {name = "Gabriel Brammer", email = "gbrammer@gmail.com"}
 ]
-license = {file = "LICENSE"}
+license = "MIT"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
